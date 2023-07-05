@@ -1,0 +1,1 @@
+const MARGIN_MEDIUM_2 = 16.0;

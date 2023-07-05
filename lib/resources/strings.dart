@@ -1,0 +1,1 @@
+const MAIN_SCREEN_APPBAR_Title = "Discover";
