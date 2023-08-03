@@ -1,1 +1,2 @@
-const MAIN_SCREEN_APPBAR_Title = "Discover";
+const mainScreenAppBarTitle = "Discover";
+const bestMovieAndSeries ="Best Popular Movie and Series";
