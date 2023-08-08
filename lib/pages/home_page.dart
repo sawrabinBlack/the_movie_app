@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:movie_app/resources/colors.dart';
 import 'package:movie_app/resources/dimens.dart';
 import 'package:movie_app/resources/strings.dart';
+import 'package:movie_app/viewItems/actor_view.dart';
 import 'package:movie_app/viewItems/banner_view.dart';
 import 'package:movie_app/viewItems/movie_view.dart';
 import 'package:movie_app/widgets/see_more.dart';
@@ -70,10 +71,50 @@ class HomePage extends StatelessWidget {
               SizedBox(
                 height: MARGIN_MEDIUM_2,
               ),
+              BestActorSectionView(),
+              SizedBox(
+                height: MARGIN_MEDIUM_2,
+              ),
             ],
           ),
         ),
       ),
+    );
+  }
+}
+
+class BestActorSectionView extends StatelessWidget {
+  const BestActorSectionView({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: TitleTextWithSeeMore(
+            titleText: "Best Actor",
+            seeMoreText: "More Actors",
+          ),
+        ),
+        SizedBox(
+          height: MARGIN_MEDIUM_2,
+        ),
+        Container(
+          height: 200,
+          child: ListView(
+            padding: EdgeInsets.only(left: MARGIN_MEDIUM_2),
+            scrollDirection: Axis.horizontal,
+            children: [
+              ActorView(),
+              ActorView(),
+              ActorView()
+            ]
+          ),
+        ),
+      ],
     );
   }
 }
