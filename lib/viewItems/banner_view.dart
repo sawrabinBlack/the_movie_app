@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:movie_app/resources/colors.dart';
 import 'package:movie_app/resources/dimens.dart';
 
+import '../widgets/gradient_view.dart';
 import '../widgets/play_button_view.dart';
 
 class BannerView extends StatelessWidget {
@@ -32,24 +33,7 @@ class BannerView extends StatelessWidget {
 
 
 
-class GradientView extends StatelessWidget {
-  const GradientView({
-    super.key,
-  });
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [Colors.transparent, PRIMARY_COLOR],
-        ),
-      ),
-    );
-  }
-}
 
 class BannerImageView extends StatelessWidget {
   const BannerImageView({
@@ -82,7 +66,7 @@ class BannerSectionView extends StatelessWidget {
             "The Wolverine 2013",
             style: TextStyle(
               color: Colors.white,
-              fontSize: textHeading1x,
+              fontSize: TEXT_HEADING_1X,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -90,7 +74,7 @@ class BannerSectionView extends StatelessWidget {
             'Official Review',
             style: TextStyle(
               color: Colors.white,
-              fontSize: textHeading1x,
+              fontSize: TEXT_HEADING_1X,
               fontWeight: FontWeight.w500,
             ),
           )

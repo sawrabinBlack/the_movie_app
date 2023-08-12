@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 
 class SeeMoreText extends StatelessWidget {
   final String text;
-  SeeMoreText(this.text);
+  final Color textColor;
+  SeeMoreText(this.text,{this.textColor= Colors.white});
 
 
   @override
@@ -10,7 +11,7 @@ class SeeMoreText extends StatelessWidget {
     return Text(
       text,
       style: TextStyle(
-          color: Colors.white,
+          color: textColor,
           fontWeight: FontWeight.bold,
           decoration: TextDecoration.underline),
     );

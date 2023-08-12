@@ -8,7 +8,7 @@ class ActorView extends StatelessWidget {
     return Container(
       color: Colors.blue,
       width: movieListWidth,
-      margin: EdgeInsets.only(left: margin_medium),
+      margin: EdgeInsets.only(left: MARGIN_MEDIUM),
       child: Stack(
         children: [
           Positioned.fill(
@@ -68,7 +68,7 @@ class ActorNameAndLikedView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(
-          horizontal: margin_medium, vertical: MARGIN_MEDIUM_2),
+          horizontal: MARGIN_MEDIUM, vertical: MARGIN_MEDIUM_2),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -84,7 +84,7 @@ class ActorNameAndLikedView extends StatelessWidget {
                 color: Colors.amber,
                 size: MARGIN_MEDIUM_2,
               ),
-              SizedBox(width: margin_medium,),
+              SizedBox(width: MARGIN_MEDIUM,),
               Text("You Like 3 Movies",style: TextStyle(fontSize: 10,fontWeight: FontWeight.bold),),
             ],
           )

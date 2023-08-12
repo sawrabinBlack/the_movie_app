@@ -9,7 +9,7 @@ class ShowCaseView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(left: margin_medium),
+      margin: EdgeInsets.only(left: MARGIN_MEDIUM),
       width: 300,
       color: Colors.blue,
       child: Stack(
@@ -36,10 +36,10 @@ class ShowCaseView extends StatelessWidget {
                     "Passenger",
                     style: TextStyle(
                         color: Colors.white,
-                        fontSize: textRegular2x,
+                        fontSize: TEXT_REGULAR_2X,
                         fontWeight: FontWeight.w500),
                   ),
-                  SizedBox(height: margin_medium,),
+                  SizedBox(height: MARGIN_MEDIUM,),
                   TitleText("15 December 2016")
                 ],
               ),

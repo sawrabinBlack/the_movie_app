@@ -19,12 +19,12 @@ class MovieView extends StatelessWidget {
             fit: BoxFit.cover,
             height: 150,
           ),
-          SizedBox(height: margin_medium),
+          SizedBox(height: MARGIN_MEDIUM),
           Text(
             "West World",
             style: TextStyle(
                 color: Colors.white,
-                fontSize: textRegular2x,
+                fontSize: TEXT_REGULAR_2X,
                 fontWeight: FontWeight.w500),
           ),
           Row(
@@ -33,10 +33,10 @@ class MovieView extends StatelessWidget {
                 "8.9",
                 style: TextStyle(
                     color: Colors.white,
-                    fontSize: textRegular2x,
+                    fontSize: TEXT_REGULAR_2X,
                     fontWeight: FontWeight.w500),
               ),
-              SizedBox(width: margin_medium,),
+              SizedBox(width: MARGIN_MEDIUM,),
               RatingBar.builder(
                 initialRating: 5,
                 minRating: 1,
