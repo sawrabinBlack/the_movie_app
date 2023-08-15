@@ -5,8 +5,9 @@ import 'package:movie_app/widgets/title_text.dart';
 class TitleTextWithSeeMore extends StatelessWidget {
   final String titleText;
   final String seeMoreText;
+  final bool seeMoreButtonVisibility;
 
-  const TitleTextWithSeeMore({super.key, required this.titleText, required this.seeMoreText});
+TitleTextWithSeeMore(this.titleText,this.seeMoreText, {this.seeMoreButtonVisibility = true});
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +15,9 @@ class TitleTextWithSeeMore extends StatelessWidget {
       children: [
         TitleText(titleText),
         Spacer(),
-        SeeMoreText(seeMoreText)
+        Visibility(
+            visible: seeMoreButtonVisibility,
+            child: SeeMoreText(seeMoreText))
       ],
     );
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:movie_app/widgets/rating_view.dart';
 
 import '../resources/dimens.dart';
 
@@ -37,21 +38,7 @@ class MovieView extends StatelessWidget {
                     fontWeight: FontWeight.w500),
               ),
               SizedBox(width: MARGIN_MEDIUM,),
-              RatingBar.builder(
-                initialRating: 5,
-                minRating: 1,
-                direction: Axis.horizontal,
-                allowHalfRating: true,
-                itemCount: 5,
-                itemSize: 14.0,
-                itemBuilder: (context, _) => Icon(
-                  Icons.star,
-                  color: Colors.amber,
-                ),
-                onRatingUpdate: (rating) {
-                  print(rating);
-                },
-              ),
+              RatingView(),
             ],
           )
         ],

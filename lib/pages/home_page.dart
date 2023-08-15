@@ -6,6 +6,7 @@ import 'package:movie_app/resources/strings.dart';
 import 'package:movie_app/viewItems/actor_view.dart';
 import 'package:movie_app/viewItems/banner_view.dart';
 import 'package:movie_app/viewItems/movie_view.dart';
+import 'package:movie_app/widgets/actors_and_create_section_view.dart';
 import 'package:movie_app/widgets/see_more.dart';
 import 'package:movie_app/widgets/title_text.dart';
 import 'package:movie_app/widgets/title_text_with_see_more.dart';
@@ -46,11 +47,11 @@ class HomePage extends StatelessWidget {
               const CheckMovieShowTimeSectionView(),
               const SizedBox(height: MARGIN_MEDIUM_2),
               GenreSectionView(_genreList),
-              const Padding(
+               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 child: TitleTextWithSeeMore(
-                  titleText: "Showcases",
-                  seeMoreText: "More Showcases",
+                  "Showcases",
+                  "More Showcases",
                 ),
               ),
               const SizedBox(height: MARGIN_MEDIUM_2),
@@ -69,7 +70,9 @@ class HomePage extends StatelessWidget {
               const SizedBox(
                 height: MARGIN_MEDIUM_2,
               ),
-              const BestActorSectionView(),
+              ActorsAndCreatorSectionView(
+"BEST ACTORS","MORE ACTORS"
+              ),
               const SizedBox(
                 height: MARGIN_MEDIUM_2,
               ),
@@ -158,36 +161,7 @@ class CheckMovieShowTimeSectionView extends StatelessWidget {
   }
 }
 
-class BestActorSectionView extends StatelessWidget {
-  const BestActorSectionView({
-    super.key,
-  });
 
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16),
-          child: TitleTextWithSeeMore(
-            titleText: "Best Actor",
-            seeMoreText: "More Actors",
-          ),
-        ),
-        const SizedBox(
-          height: MARGIN_MEDIUM_2,
-        ),
-        Container(
-          height: 200,
-          child: ListView(
-              padding: const EdgeInsets.only(left: MARGIN_MEDIUM_2),
-              scrollDirection: Axis.horizontal,
-              children: [ActorView(), ActorView(), ActorView()]),
-        ),
-      ],
-    );
-  }
-}
 
 class BestPopularMovieAndSeriesSection extends StatelessWidget {
   @override

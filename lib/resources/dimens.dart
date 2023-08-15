@@ -29,3 +29,4 @@ const movieListHeight =250.0;
 const movieListWidth = 150.0;
 const MOVIE_SHOW_TIME_SECTION =180.0;
 const MOVIE_DETAIL_SLIVER_APP_BAR_EXPAND_HEIGHT = 300.0;
+const MOVIE_DETAIL_RATING_TEXT_SIZE = 56.0;
