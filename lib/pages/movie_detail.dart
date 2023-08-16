@@ -7,9 +7,9 @@ import 'package:movie_app/widgets/rating_view.dart';
 import 'package:movie_app/widgets/title_text.dart';
 
 class MovieDetailPage extends StatelessWidget {
-  const MovieDetailPage({super.key});
-
   static const List<String> genreList = ["Action", "Comedy", "Sci-fi"];
+
+  const MovieDetailPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +18,9 @@ class MovieDetailPage extends StatelessWidget {
         color: PRIMARY_COLOR,
         child: CustomScrollView(
           slivers: [
-            MovieDetailSliverAppBarView(),
+            MovieDetailSliverAppBarView(() {
+              Navigator.pop(context);
+            }),
             SliverList(
               delegate: SliverChildListDelegate([
                 Container(
@@ -27,10 +29,17 @@ class MovieDetailPage extends StatelessWidget {
                     genreList: genreList,
                   ),
                 ),
+                SizedBox(
+                  height: MARGIN_MEDIUM_2,
+                ),
                 ActorsAndCreatorSectionView(
                   "ACTORS",
                   "",
                   seeMoreButtonVisible: false,
+                ),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: MARGIN_MEDIUM_2),
+                  child: AboutFilmSectionView(),
                 ),
                 ActorsAndCreatorSectionView("CREATOR", "MORE CREATORS")
               ]),
@@ -38,6 +47,80 @@ class MovieDetailPage extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class AboutFilmSectionView extends StatelessWidget {
+  const AboutFilmSectionView({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        TitleText("ABOUT FILM"),
+        SizedBox(
+          height: MARGIN_MEDIUM_2,
+        ),
+        AboutInfoItemView("Origninal Title", "Saving Private Ryan"),
+        SizedBox(
+          height: MARGIN_MEDIUM_2,
+        ),
+        AboutInfoItemView("Type", "Saving Private Ryan"),
+        SizedBox(
+          height: MARGIN_MEDIUM_2,
+        ),
+        AboutInfoItemView("Origninal Title", "Saving Private Ryan"),
+        SizedBox(
+          height: MARGIN_MEDIUM_2,
+        ),
+        AboutInfoItemView("Origninal Title", "Saving Private Ryan"),
+        SizedBox(
+          height: MARGIN_MEDIUM_2,
+        ),
+        AboutInfoItemView("Origninal Title", "Saving Private Ryan"),
+        SizedBox(
+          height: MARGIN_MEDIUM_2,
+        ),
+        AboutInfoItemView("Origninal Title", "Saving Private Ryan"),
+      ],
+    );
+  }
+}
+
+class AboutInfoItemView extends StatelessWidget {
+  final String label;
+  final String description;
+
+  AboutInfoItemView(this.label, this.description);
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: MediaQuery.of(context).size.width / 4,
+          child: Text(
+            label,
+            style: TextStyle(
+                color: MOVIE_DETAIL_INFO_TEXT_COLOR,
+                fontWeight: FontWeight.w600),
+          ),
+        ),
+        SizedBox(
+          width: MARGIN_MEDIUM_2,
+        ),
+        Expanded(
+          child: Text(
+            description,
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -60,28 +143,72 @@ class TrailerSection extends StatelessWidget {
           height: MARGIN_MEDIUM_3,
         ),
         StoryLineView(),
-        SizedBox(height:MARGIN_MEDIUM_2,),
-        Container(
-          height: 48,
-          padding: const EdgeInsets.symmetric(horizontal: MARGIN_CARD_MEDIUM_2),
-          decoration: BoxDecoration(
-            color: Colors.amber,
-            borderRadius: BorderRadius.circular(MARGIN_LARGE),
-          ),
-          child: Center(
-            widthFactor: 2,
-            child: Wrap(
-              direction: Axis.horizontal,
-              children: [
-                Text("Play Trailer",style: TextStyle(
-                  color: Colors.white
-                ),),
-              ],
+        SizedBox(
+          height: MARGIN_MEDIUM_2,
+        ),
+        Wrap(
+          direction: Axis.horizontal,
+          children: [
+            MovieDetailRoundedButtonView(
+              "PLAY TRAILER",
+              Icon(Icons.play_circle_fill),
+              Colors.amber,
             ),
-          ),
-        )
-
+            SizedBox(width: MARGIN_MEDIUM),
+            MovieDetailRoundedButtonView(
+              "RATE MOVIE",
+              Icon(
+                Icons.star,
+                color: Colors.amber,
+              ),
+              HOME_SCREEN_BACKGROUND_COLOR,
+              isGhostButton: true,
+            ),
+          ],
+        ),
       ],
+    );
+  }
+}
+
+class MovieDetailRoundedButtonView extends StatelessWidget {
+  final String buttonText;
+  final Icon buttonIcon;
+  final Color backgroundColor;
+  bool isGhostButton;
+
+  MovieDetailRoundedButtonView(
+      this.buttonText, this.buttonIcon, this.backgroundColor,
+      {this.isGhostButton = false});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 48,
+      padding: EdgeInsets.symmetric(horizontal: MARGIN_CARD_MEDIUM_2),
+      decoration: BoxDecoration(
+          color: backgroundColor,
+          borderRadius: BorderRadius.circular(MARGIN_LARGE),
+          border:
+              isGhostButton ? Border.all(color: Colors.white, width: 2) : null),
+      child: Center(
+        widthFactor: 1,
+        child: Wrap(
+          direction: Axis.horizontal,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            buttonIcon,
+            SizedBox(
+              width: MARGIN_MEDIUM,
+            ),
+            Text(
+              buttonText,
+              style:
+                  TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -177,13 +304,14 @@ class GenreChipView extends StatelessWidget {
 }
 
 class MovieDetailSliverAppBarView extends StatelessWidget {
-  const MovieDetailSliverAppBarView({
-    super.key,
-  });
+  final Function onTapBackButtonView;
+
+  MovieDetailSliverAppBarView(this.onTapBackButtonView);
 
   @override
   Widget build(BuildContext context) {
     return SliverAppBar(
+      automaticallyImplyLeading: false,
       backgroundColor: PRIMARY_COLOR,
       expandedHeight: MOVIE_DETAIL_SLIVER_APP_BAR_EXPAND_HEIGHT,
       flexibleSpace: FlexibleSpaceBar(
@@ -200,7 +328,9 @@ class MovieDetailSliverAppBarView extends StatelessWidget {
               child: Padding(
                 padding:
                     EdgeInsets.only(top: MARGIN_XXLARGE, left: MARGIN_MEDIUM_2),
-                child: BackButtonView(),
+                child: BackButtonView(() {
+                  this.onTapBackButtonView();
+                }),
               ),
             ),
             Align(
@@ -327,19 +457,25 @@ class SearchButtonView extends StatelessWidget {
 }
 
 class BackButtonView extends StatelessWidget {
-  const BackButtonView({
-    super.key,
-  });
+  final Function onTapBackButton;
+
+  BackButtonView(this.onTapBackButton);
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 32,
-      height: 32,
-      decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.black54),
-      child: Icon(
-        Icons.chevron_left,
-        color: Colors.white,
+    return GestureDetector(
+      onTap: () {
+        onTapBackButton();
+      },
+      child: Container(
+        width: 32,
+        height: 32,
+        decoration:
+            BoxDecoration(shape: BoxShape.circle, color: Colors.black54),
+        child: Icon(
+          Icons.chevron_left,
+          color: Colors.white,
+        ),
       ),
     );
   }
