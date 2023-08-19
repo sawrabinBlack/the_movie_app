@@ -50,4 +50,9 @@ class MovieVO {
 
   factory MovieVO.fromJson(Map<String, dynamic> json)=> _$MovieVOFromJson(json);
   Map<String,dynamic> toJson()=> _$MovieVOToJson(this);
+
+  @override
+  String toString() {
+    return 'MovieVO{adult: $adult, backDropPath: $backDropPath, genreIds: $genreIds, id: $id, originalLanguage: $originalLanguage, originalTitle: $originalTitle, overview: $overview, popularity: $popularity, posterPath: $posterPath, releaseDate: $releaseDate, title: $title, video: $video, voteAverage: $voteAverage, voteCount: $voteCount}';
+  }
 }
