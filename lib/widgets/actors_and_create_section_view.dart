@@ -1,17 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:movie_app/data/vos/actor_vo.dart';
 import 'package:movie_app/widgets/title_text_with_see_more.dart';
 
 import '../resources/dimens.dart';
 import '../viewItems/actor_view.dart';
 
 class ActorsAndCreatorSectionView extends StatelessWidget {
+  final String title;
+  final String seeMoreText;
+  final bool seeMoreButtonVisible;
+  final List<ActorVO>? actorAndCreatorList;
 
-final String title;
-final String seeMoreText;
-final bool seeMoreButtonVisible;
-
-ActorsAndCreatorSectionView( @required this.title, @required this.seeMoreText,  {this.seeMoreButtonVisible = true});
-
+  ActorsAndCreatorSectionView(
+      {required this.title,
+      required this.seeMoreText,
+      this.seeMoreButtonVisible = true,
+      required this.actorAndCreatorList});
 
   @override
   Widget build(BuildContext context) {
@@ -22,18 +26,25 @@ ActorsAndCreatorSectionView( @required this.title, @required this.seeMoreText,  
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 16),
             child: TitleTextWithSeeMore(
-            title,seeMoreText,seeMoreButtonVisibility: seeMoreButtonVisible,
+              title,
+              seeMoreText,
+              seeMoreButtonVisibility: seeMoreButtonVisible,
             ),
           ),
-           SizedBox(
+          SizedBox(
             height: MARGIN_MEDIUM_2,
           ),
           Container(
             height: 200,
             child: ListView(
-                padding: const EdgeInsets.only(left: MARGIN_MEDIUM_2),
-                scrollDirection: Axis.horizontal,
-                children: [ActorView(), ActorView(), ActorView()]),
+              padding: const EdgeInsets.only(left: MARGIN_MEDIUM_2),
+              scrollDirection: Axis.horizontal,
+              children: actorAndCreatorList
+                      ?.map((actorAndCreator) =>
+                          ActorView(actorAndCreator: actorAndCreator))
+                      .toList() ??
+                  [],
+            ),
           ),
         ],
       ),

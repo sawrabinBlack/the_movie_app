@@ -8,8 +8,9 @@ import 'package:movie_app/widgets/title_text.dart';
 
 class MovieDetailPage extends StatelessWidget {
   static const List<String> genreList = ["Action", "Comedy", "Sci-fi"];
+  final int movieId;
 
-  const MovieDetailPage({super.key});
+  const MovieDetailPage({super.key, required this.movieId});
 
   @override
   Widget build(BuildContext context) {
@@ -33,15 +34,20 @@ class MovieDetailPage extends StatelessWidget {
                   height: MARGIN_MEDIUM_2,
                 ),
                 ActorsAndCreatorSectionView(
-                  "ACTORS",
-                  "",
+                  title: "ACTORS",
+                  seeMoreText: "",
                   seeMoreButtonVisible: false,
+                  actorAndCreatorList: [],
                 ),
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: MARGIN_MEDIUM_2),
                   child: AboutFilmSectionView(),
                 ),
-                ActorsAndCreatorSectionView("CREATOR", "MORE CREATORS")
+                ActorsAndCreatorSectionView(
+                  title: "CREATOR",
+                  seeMoreText: "MORE CREATORS",
+                  actorAndCreatorList: [],
+                )
               ]),
             )
           ],
@@ -381,7 +387,9 @@ class MovieDetailAppBarInfoView extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    RatingView(),
+                    RatingView(
+                      rating: 0,
+                    ),
                     SizedBox(
                       height: MARGIN_SMALL,
                     ),

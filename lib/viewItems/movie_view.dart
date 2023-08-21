@@ -1,52 +1,65 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:movie_app/network/api_constants.dart';
 import 'package:movie_app/widgets/rating_view.dart';
 
+import '../data/vos/movie_vo.dart';
 import '../resources/dimens.dart';
 
 class MovieView extends StatelessWidget {
- final Function onTapMovie;
-MovieView(this.onTapMovie);
+  final MovieVO? movie;
+final Function(int movieId) onTapMovie;
+  const MovieView({super.key, required this.movie, required this.onTapMovie});
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: movieListWidth,
-      margin: EdgeInsets.only(right: 8.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          GestureDetector(
-            onTap:(){
-             this.onTapMovie();
-            },
-            child: Image.network(
-              "https://assetsio.reedpopcdn.com/319879966_1219712415559369_2430883062931850206_n.jpg?width=1920&height=1920&fit=bounds&quality=80&format=jpg&auto=webp",
-              fit: BoxFit.cover,
-              height: 150,
+    return GestureDetector(
+      onTap: (){
+        onTapMovie(movie?.id??0);
+      },
+      child: Container(
+        width: movieListWidth,
+        margin: const EdgeInsets.only(right: 8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Image.network(
+              "$IMAGE_BASE_URL${movie?.posterPath}",
+              fit: BoxFit.fill,
+              height: 200,
             ),
-          ),
-          SizedBox(height: MARGIN_MEDIUM),
-          Text(
-            "West World",
-            style: TextStyle(
+            SizedBox(height: MARGIN_MEDIUM),
+            Text(
+              movie?.title ?? "",
+              maxLines: 3,
+              style: const TextStyle(
                 color: Colors.white,
                 fontSize: TEXT_REGULAR_2X,
-                fontWeight: FontWeight.w500),
-          ),
-          Row(
-            children: [
-              Text(
-                "8.9",
-                style: TextStyle(
-                    color: Colors.white,
-                    fontSize: TEXT_REGULAR_2X,
-                    fontWeight: FontWeight.w500),
+                fontWeight: FontWeight.w500,
               ),
-              SizedBox(width: MARGIN_MEDIUM,),
-              RatingView(),
-            ],
-          )
-        ],
+            ),
+            const SizedBox(
+              height: MARGIN_MEDIUM,
+            ),
+            Row(
+              children: [
+                Text(
+                  "${movie?.voteAverage}",
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: TEXT_REGULAR_2X,
+                      fontWeight: FontWeight.w500),
+                ),
+                SizedBox(
+                  width: MARGIN_MEDIUM,
+                ),
+                RatingView(
+                  rating: movie?.voteAverage ?? 0.0,
+                ),
+              ],
+            )
+          ],
+        ),
       ),
     );
   }

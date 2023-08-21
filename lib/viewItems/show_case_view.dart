@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:movie_app/data/vos/movie_vo.dart';
+import 'package:movie_app/network/api_constants.dart';
 import 'package:movie_app/resources/dimens.dart';
 import 'package:movie_app/widgets/play_button_view.dart';
 import 'package:movie_app/widgets/title_text.dart';
 
 class ShowCaseView extends StatelessWidget {
-  const ShowCaseView({super.key});
+  final MovieVO movie;
+
+  const ShowCaseView({super.key, required this.movie});
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +20,7 @@ class ShowCaseView extends StatelessWidget {
         children: [
           Positioned.fill(
             child: Image.network(
-              "https://assetsio.reedpopcdn.com/319879966_1219712415559369_2430883062931850206_n.jpg?width=1920&height=1920&fit=bounds&quality=80&format=jpg&auto=webp",
+              "$IMAGE_BASE_URL${movie.posterPath}",
               fit: BoxFit.cover,
             ),
           ),
@@ -33,14 +37,16 @@ class ShowCaseView extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    "Passenger",
+                    movie.title??"",
                     style: TextStyle(
                         color: Colors.white,
                         fontSize: TEXT_REGULAR_2X,
                         fontWeight: FontWeight.w500),
                   ),
-                  SizedBox(height: MARGIN_MEDIUM,),
-                  TitleText("15 December 2016")
+                  SizedBox(
+                    height: MARGIN_MEDIUM,
+                  ),
+                  TitleText("${movie.releaseDate}")
                 ],
               ),
             ),

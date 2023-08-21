@@ -25,7 +25,7 @@ const TEXT_BIG = 32.0;
 
 const bannerHeight = 200.0;
 const playButton =50.0;
-const movieListHeight =250.0;
+const movieListHeight =300.0;
 const movieListWidth = 150.0;
 const MOVIE_SHOW_TIME_SECTION =180.0;
 const MOVIE_DETAIL_SLIVER_APP_BAR_EXPAND_HEIGHT = 300.0;

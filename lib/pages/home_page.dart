@@ -1,5 +1,10 @@
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
+import 'package:movie_app/data/models/movie_model.dart';
+import 'package:movie_app/data/models/movie_model_impl.dart';
+import 'package:movie_app/data/vos/actor_vo.dart';
+import 'package:movie_app/data/vos/genre_vo.dart';
+import 'package:movie_app/data/vos/movie_vo.dart';
 import 'package:movie_app/pages/movie_detail.dart';
 import 'package:movie_app/resources/colors.dart';
 import 'package:movie_app/resources/dimens.dart';
@@ -14,7 +19,7 @@ import 'package:movie_app/widgets/title_text_with_see_more.dart';
 
 import '../viewItems/show_case_view.dart';
 
-const List<String>_genreList = [
+const List<String> _genreList = [
   "genre1",
   "genre2",
   "gen3",
@@ -23,9 +28,46 @@ const List<String>_genreList = [
   "gen6"
 ];
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  List<MovieVO>? nowPlayingMovies;
+  List<MovieVO>? popularMovies;
+  List<GenreVO>? genreList;
+  List<MovieVO>? movieListByGenre;
+  List<MovieVO>? topRatedMovies;
+  List<ActorVO>? bestActors;
+  MovieModel movieModel = MovieModelImpl();
+
+  @override
+  void initState() {
+    movieModel.getNowPlayingMovies().then((movieList) => setState(() {
+          nowPlayingMovies = movieList;
+        }));
+    movieModel.getPopularMovies().then((movieList) => setState(() {
+          popularMovies = movieList?.take(5).toList();
+        }));
+
+    movieModel.getGenres().then((genreList) {
+      setState(() {
+        this.genreList = genreList;
+      });
+      _getMoviesByGenreId(genreList?.first.id ?? 0);
+    });
+
+    movieModel.getTopRatedMovies().then((movieList) => setState(() {
+          topRatedMovies = movieList;
+        }));
+    movieModel.getBestActors().then((actorList) => setState(() {
+          bestActors = actorList;
+        }));
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,17 +92,27 @@ class HomePage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const BannerSectionView(),
+              BannerSectionView(
+                movieList: popularMovies,
+              ),
               const SizedBox(
                 height: MARGIN_MEDIUM_2,
               ),
-              BestPopularMovieAndSeriesSection(() =>
-                   _navigateToMovieDetail(context)
-              ),
+              BestPopularMovieAndSeriesSection(
+                  movieList: nowPlayingMovies,
+                  onTapMovie: () => _navigateToMovieDetail(context, 2)),
               const CheckMovieShowTimeSectionView(),
               const SizedBox(height: MARGIN_MEDIUM_2),
-              GenreSectionView(_genreList, () =>
-                  _navigateToMovieDetail(context)),
+              GenreSectionView(
+                genreList: genreList ?? [],
+                onTapGenre: _getMoviesByGenreId,
+                onTapMovie: (movieId) {
+                  if (movieId != null) {
+                    _navigateToMovieDetail(context,movieId);
+                  }
+                },
+                movieList: movieListByGenre,
+              ),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 child: TitleTextWithSeeMore(
@@ -74,18 +126,21 @@ class HomePage extends StatelessWidget {
                 child: ListView(
                   scrollDirection: Axis.horizontal,
                   padding: const EdgeInsets.only(left: MARGIN_MEDIUM_2),
-                  children: const [
-                    ShowCaseView(),
-                    ShowCaseView(),
-                    ShowCaseView(),
-                  ],
+                  children: topRatedMovies
+                          ?.map((movie) => ShowCaseView(
+                                movie: movie,
+                              ))
+                          .toList() ??
+                      [],
                 ),
               ),
               const SizedBox(
                 height: MARGIN_MEDIUM_2,
               ),
               ActorsAndCreatorSectionView(
-                  "BEST ACTORS", "MORE ACTORS"
+                title: "BEST ACTORS",
+                seeMoreText: "MORE ACTORS",
+                actorAndCreatorList: bestActors,
               ),
               const SizedBox(
                 height: MARGIN_MEDIUM_2,
@@ -97,21 +152,34 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  void _navigateToMovieDetail(BuildContext context) {
-
-    Navigator.push(context,
-        MaterialPageRoute(  builder: (context) =>  MovieDetailPage()));
-
+  _getMoviesByGenreId(genreId) {
+    movieModel.getMovieByGenre(genreId).then((movieList) => setState(() {
+          movieListByGenre = movieList;
+        }));
   }
 
-
+  void _navigateToMovieDetail(BuildContext context, int movieId) {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => MovieDetailPage(
+                  movieId: movieId,
+                )));
+  }
 }
 
 class GenreSectionView extends StatelessWidget {
-  final List<String> genreList;
-  final Function onTapMovie;
+  final List<GenreVO> genreList;
+  final Function(int movieId) onTapMovie;
+  final Function onTapGenre;
+  final List<MovieVO>? movieList;
 
-  GenreSectionView(this.genreList, this.onTapMovie);
+  GenreSectionView({
+    required this.genreList,
+    required this.onTapMovie,
+    required this.onTapGenre(int genreId),
+    this.movieList,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -119,26 +187,36 @@ class GenreSectionView extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: MARGIN_MEDIUM_2),
-          child: DefaultTabController(length: genreList.length, child: TabBar(
-              isScrollable: true,
-              indicatorColor: Colors.amber,
-              unselectedLabelColor: TITLE_TEXT_COLOR,
-              tabs:
-              genreList.map((genre) =>
-                  Tab(
-                    child: Text(genre),
-                  ),).toList()
-
-          )),
+          child: DefaultTabController(
+              length: genreList.length,
+              child: TabBar(
+                  onTap: (index) {
+                    onTapGenre(genreList[index].id);
+                  },
+                  isScrollable: true,
+                  indicatorColor: Colors.amber,
+                  unselectedLabelColor: TITLE_TEXT_COLOR,
+                  tabs: genreList
+                      .map(
+                        (genre) => Tab(
+                          child: Text(genre?.name ?? ""),
+                        ),
+                      )
+                      .toList())),
         ),
-        SizedBox(height: MARGIN_MEDIUM,),
+        SizedBox(
+          height: MARGIN_MEDIUM,
+        ),
         Container(
             color: PRIMARY_COLOR,
-            padding: EdgeInsets.only(
-                top: MARGIN_MEDIUM_2, bottom: MARGIN_LARGE),
-            child: MovieListView(() {
-              onTapMovie();
-            })),
+            padding:
+                EdgeInsets.only(top: MARGIN_MEDIUM_2, bottom: MARGIN_LARGE),
+            child: MovieListView(
+              onTapMovie: (movieId) {
+                onTapMovie(movieId);
+              },
+              movieList: movieList,
+            )),
       ],
     );
   }
@@ -187,11 +265,12 @@ class CheckMovieShowTimeSectionView extends StatelessWidget {
   }
 }
 
-
 class BestPopularMovieAndSeriesSection extends StatelessWidget {
   final Function onTapMovie;
+  final List<MovieVO>? movieList;
 
-  BestPopularMovieAndSeriesSection(this.onTapMovie);
+  BestPopularMovieAndSeriesSection(
+      {required this.onTapMovie, required this.movieList});
 
   @override
   Widget build(BuildContext context) {
@@ -205,40 +284,54 @@ class BestPopularMovieAndSeriesSection extends StatelessWidget {
         const SizedBox(
           height: MARGIN_MEDIUM_2,
         ),
-        MovieListView(() {
-          onTapMovie();
-        }),
+        MovieListView(
+          onTapMovie: (movieId) {
+            onTapMovie(movieId);
+          },
+          movieList: movieList,
+        ),
       ],
     );
   }
 }
 
 class MovieListView extends StatelessWidget {
-  final Function onTapMovie;
+  final Function(int movieId) onTapMovie;
+  final List<MovieVO>? movieList;
 
-  MovieListView(this.onTapMovie);
+  MovieListView({required this.onTapMovie, required this.movieList});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       height: movieListHeight,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.only(left: MARGIN_MEDIUM_2),
-        itemBuilder: (BuildContext context, int index) {
-          return MovieView(() {
-            onTapMovie();
-          });
-        },
-        itemCount: 10,
-      ),
+      child: movieList != null
+          ? ListView.builder(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.only(left: MARGIN_MEDIUM_2),
+              itemBuilder: (BuildContext context, int index) {
+                return MovieView(
+                  movie: movieList?[index],
+                  onTapMovie: (movieId) {
+                    onTapMovie(movieId);
+                  },
+                );
+              },
+              itemCount: movieList?.length ?? 0,
+            )
+          : const Center(
+              child: CircularProgressIndicator(),
+            ),
     );
   }
 }
 
 class BannerSectionView extends StatefulWidget {
+  final List<MovieVO>? movieList;
+
   const BannerSectionView({
     super.key,
+    this.movieList,
   });
 
   @override
@@ -252,28 +345,27 @@ class _BannerSectionViewState extends State<BannerSectionView> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Container(
-          height: MediaQuery
-              .of(context)
-              .size
-              .height / 4,
+        SizedBox(
+          height: MediaQuery.of(context).size.height / 4,
           child: PageView(
             onPageChanged: (page) {
               setState(() {
                 _position = page.toDouble();
               });
             },
-            children: const [
-              BannerView(),
-              BannerView(),
-            ],
+            children: widget.movieList
+                    ?.map((movie) => BannerView(
+                          movie: movie,
+                        ))
+                    .toList() ??
+                [],
           ),
         ),
         const SizedBox(
           height: MARGIN_MEDIUM,
         ),
         DotsIndicator(
-          dotsCount: 2,
+          dotsCount: widget.movieList?.length ?? 1,
           position: _position,
           decorator: const DotsDecorator(
             color: HOME_SCREEN_BANNER_DOTS_INACTIVE_COLOR,

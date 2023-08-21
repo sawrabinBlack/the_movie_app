@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:movie_app/data/vos/actor_vo.dart';
+import 'package:movie_app/network/api_constants.dart';
 
 import '../resources/dimens.dart';
 
 class ActorView extends StatelessWidget {
+  final ActorVO actorAndCreator;
+
+  const ActorView({super.key, required this.actorAndCreator});
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -12,7 +18,9 @@ class ActorView extends StatelessWidget {
       child: Stack(
         children: [
           Positioned.fill(
-            child: ActorImageView(),
+            child: ActorImageView(
+              actorImageLink: actorAndCreator.profilePath,
+            ),
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
@@ -23,7 +31,9 @@ class ActorView extends StatelessWidget {
           ),
           Align(
             alignment: Alignment.bottomCenter,
-            child: ActorNameAndLikedView(),
+            child: ActorNameAndLikedView(
+              name: actorAndCreator.name ?? "",
+            ),
           )
         ],
       ),
@@ -32,14 +42,17 @@ class ActorView extends StatelessWidget {
 }
 
 class ActorImageView extends StatelessWidget {
+  final String? actorImageLink;
+
   const ActorImageView({
     super.key,
+    required this.actorImageLink,
   });
 
   @override
   Widget build(BuildContext context) {
     return Image.network(
-      "https://image.pmgstatic.com/cache/resized/w200h264crop/files/images/creator/photos/167/116/167116499_c46e5b.jpg",
+      "$IMAGE_BASE_URL$actorImageLink",
       fit: BoxFit.cover,
     );
   }
@@ -60,8 +73,11 @@ class FavoriteButtonView extends StatelessWidget {
 }
 
 class ActorNameAndLikedView extends StatelessWidget {
+  final String name;
+
   const ActorNameAndLikedView({
     super.key,
+    required this.name,
   });
 
   @override
@@ -73,9 +89,8 @@ class ActorNameAndLikedView extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            "Cillian Murphy",
-            style: TextStyle(
-                color: Colors.white, fontWeight: FontWeight.w700),
+            name,
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
           ),
           Row(
             children: [
@@ -84,8 +99,13 @@ class ActorNameAndLikedView extends StatelessWidget {
                 color: Colors.amber,
                 size: MARGIN_MEDIUM_2,
               ),
-              SizedBox(width: MARGIN_MEDIUM,),
-              Text("You Like 3 Movies",style: TextStyle(fontSize: 10,fontWeight: FontWeight.bold),),
+              SizedBox(
+                width: MARGIN_MEDIUM,
+              ),
+              Text(
+                "You Like 3 Movies",
+                style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
+              ),
             ],
           )
         ],
