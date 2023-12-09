@@ -1,16 +1,48 @@
 import 'package:flutter/material.dart';
+import 'package:movie_app/data/models/movie_model.dart';
+import 'package:movie_app/data/models/movie_model_impl.dart';
+import 'package:movie_app/data/vos/actor_vo.dart';
+import 'package:movie_app/data/vos/genre_vo.dart';
+import 'package:movie_app/data/vos/movie_vo.dart';
+import 'package:movie_app/network/api_constants.dart';
 import 'package:movie_app/resources/colors.dart';
 import 'package:movie_app/resources/dimens.dart';
 import 'package:movie_app/widgets/actors_and_create_section_view.dart';
 import 'package:movie_app/widgets/gradient_view.dart';
 import 'package:movie_app/widgets/rating_view.dart';
 import 'package:movie_app/widgets/title_text.dart';
-
-class MovieDetailPage extends StatelessWidget {
+class MovieDetailPage extends StatefulWidget {
   static const List<String> genreList = ["Action", "Comedy", "Sci-fi"];
   final int movieId;
 
   const MovieDetailPage({super.key, required this.movieId});
+
+  @override
+  State<MovieDetailPage> createState() => _MovieDetailPageState();
+}
+
+class _MovieDetailPageState extends State<MovieDetailPage> {
+  MovieModel movieModel = MovieModelImpl();
+  List<ActorVO>? actors;
+  List<ActorVO>? creators;
+  MovieVO? movieVO;
+
+  @override
+  void initState() {
+    movieModel.getMovieDetail(widget.movieId).then((movie) => setState(() {
+          movieVO = movie;
+        }));
+    movieModel.getMovieDetailFromDatabase(widget.movieId).then((movie) => setState(() {
+          movieVO = movie;
+        }));
+    movieModel
+        .getCreditsByMovies(widget.movieId)
+        .then((credits) => setState(() {
+              actors = credits.first;
+              creators = credits[1];
+            }));
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,32 +53,36 @@ class MovieDetailPage extends StatelessWidget {
           slivers: [
             MovieDetailSliverAppBarView(() {
               Navigator.pop(context);
-            }),
+            }, movieVO),
             SliverList(
               delegate: SliverChildListDelegate([
                 Container(
-                  margin: EdgeInsets.symmetric(horizontal: MARGIN_MEDIUM_2),
+                  margin:
+                      const EdgeInsets.symmetric(horizontal: MARGIN_MEDIUM_2),
                   child: TrailerSection(
-                    genreList: genreList,
+                    genreList: movieVO?.getGenreListAsStringList() ?? [],
+                    movieDuration: movieVO?.runTime,
+                    storyLine: movieVO?.overview ?? "",
                   ),
                 ),
-                SizedBox(
-                  height: MARGIN_MEDIUM_2,
-                ),
+                const SizedBox(height: MARGIN_MEDIUM_2),
                 ActorsAndCreatorSectionView(
                   title: "ACTORS",
                   seeMoreText: "",
                   seeMoreButtonVisible: false,
-                  actorAndCreatorList: [],
+                  actorAndCreatorList: actors,
                 ),
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: MARGIN_MEDIUM_2),
-                  child: AboutFilmSectionView(),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: MARGIN_MEDIUM_2),
+                  child: AboutFilmSectionView(
+                    movieDetail: movieVO,
+                  ),
                 ),
                 ActorsAndCreatorSectionView(
                   title: "CREATOR",
                   seeMoreText: "MORE CREATORS",
-                  actorAndCreatorList: [],
+                  actorAndCreatorList: creators,
                 )
               ]),
             )
@@ -58,8 +94,11 @@ class MovieDetailPage extends StatelessWidget {
 }
 
 class AboutFilmSectionView extends StatelessWidget {
+  final MovieVO? movieDetail;
+
   const AboutFilmSectionView({
     super.key,
+    this.movieDetail,
   });
 
   @override
@@ -68,30 +107,19 @@ class AboutFilmSectionView extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         TitleText("ABOUT FILM"),
-        SizedBox(
-          height: MARGIN_MEDIUM_2,
-        ),
-        AboutInfoItemView("Origninal Title", "Saving Private Ryan"),
-        SizedBox(
-          height: MARGIN_MEDIUM_2,
-        ),
-        AboutInfoItemView("Type", "Saving Private Ryan"),
-        SizedBox(
-          height: MARGIN_MEDIUM_2,
-        ),
-        AboutInfoItemView("Origninal Title", "Saving Private Ryan"),
-        SizedBox(
-          height: MARGIN_MEDIUM_2,
-        ),
-        AboutInfoItemView("Origninal Title", "Saving Private Ryan"),
-        SizedBox(
-          height: MARGIN_MEDIUM_2,
-        ),
-        AboutInfoItemView("Origninal Title", "Saving Private Ryan"),
-        SizedBox(
-          height: MARGIN_MEDIUM_2,
-        ),
-        AboutInfoItemView("Origninal Title", "Saving Private Ryan"),
+        const SizedBox(height: MARGIN_MEDIUM_2),
+        AboutInfoItemView("Original Title", movieDetail?.originalTitle ?? ""),
+        const SizedBox(height: MARGIN_MEDIUM_2),
+        AboutInfoItemView(
+            "Type", movieDetail?.getGenreWithCommaSeperate() ?? ""),
+        const SizedBox(height: MARGIN_MEDIUM_2),
+        AboutInfoItemView("Production",
+            movieDetail?.getProductionCountryWithCommaSeperate() ?? ""),
+        const SizedBox(height: MARGIN_MEDIUM_2),
+        AboutInfoItemView("Premiere", movieDetail?.releaseDate ?? ""),
+        const SizedBox(height: MARGIN_MEDIUM_2),
+        AboutInfoItemView("Description", movieDetail?.overview ?? ""),
+        const SizedBox(height: MARGIN_MEDIUM_2),
       ],
     );
   }
@@ -112,18 +140,19 @@ class AboutInfoItemView extends StatelessWidget {
           width: MediaQuery.of(context).size.width / 4,
           child: Text(
             label,
-            style: TextStyle(
+            style: const TextStyle(
                 color: MOVIE_DETAIL_INFO_TEXT_COLOR,
                 fontWeight: FontWeight.w600),
           ),
         ),
-        SizedBox(
+        const SizedBox(
           width: MARGIN_MEDIUM_2,
         ),
         Expanded(
           child: Text(
             description,
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+            style: const TextStyle(
+                color: Colors.white, fontWeight: FontWeight.w600),
           ),
         ),
       ],
@@ -133,10 +162,14 @@ class AboutInfoItemView extends StatelessWidget {
 
 class TrailerSection extends StatelessWidget {
   final List<String> genreList;
+  final int? movieDuration;
+  final String storyLine;
 
   const TrailerSection({
     super.key,
     required this.genreList,
+    required this.movieDuration,
+    required this.storyLine,
   });
 
   @override
@@ -144,12 +177,17 @@ class TrailerSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        MovieTimeAndGenreView(genreList: genreList),
-        SizedBox(
+        MovieTimeAndGenreView(
+          genreList: genreList,
+          movieDuration: movieDuration,
+        ),
+        const SizedBox(
           height: MARGIN_MEDIUM_3,
         ),
-        StoryLineView(),
-        SizedBox(
+        StoryLineView(
+          storyLine: storyLine,
+        ),
+        const SizedBox(
           height: MARGIN_MEDIUM_2,
         ),
         Wrap(
@@ -157,13 +195,13 @@ class TrailerSection extends StatelessWidget {
           children: [
             MovieDetailRoundedButtonView(
               "PLAY TRAILER",
-              Icon(Icons.play_circle_fill),
+              const Icon(Icons.play_circle_fill),
               Colors.amber,
             ),
-            SizedBox(width: MARGIN_MEDIUM),
+            const SizedBox(width: MARGIN_MEDIUM),
             MovieDetailRoundedButtonView(
               "RATE MOVIE",
-              Icon(
+              const Icon(
                 Icons.star,
                 color: Colors.amber,
               ),
@@ -191,7 +229,7 @@ class MovieDetailRoundedButtonView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: 48,
-      padding: EdgeInsets.symmetric(horizontal: MARGIN_CARD_MEDIUM_2),
+      padding: const EdgeInsets.symmetric(horizontal: MARGIN_CARD_MEDIUM_2),
       decoration: BoxDecoration(
           color: backgroundColor,
           borderRadius: BorderRadius.circular(MARGIN_LARGE),
@@ -204,13 +242,13 @@ class MovieDetailRoundedButtonView extends StatelessWidget {
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
             buttonIcon,
-            SizedBox(
+            const SizedBox(
               width: MARGIN_MEDIUM,
             ),
             Text(
               buttonText,
-              style:
-                  TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                  color: Colors.white, fontWeight: FontWeight.bold),
             ),
           ],
         ),
@@ -220,8 +258,11 @@ class MovieDetailRoundedButtonView extends StatelessWidget {
 }
 
 class StoryLineView extends StatelessWidget {
+  final String storyLine;
+
   const StoryLineView({
     super.key,
+    required this.storyLine,
   });
 
   @override
@@ -230,12 +271,11 @@ class StoryLineView extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         TitleText("STORY LINE"),
-        SizedBox(
-          height: MARGIN_MEDIUM,
-        ),
+        const SizedBox(height: MARGIN_MEDIUM),
         Text(
-          "Following the Normandy Landings, a group of U.S. soldiers go behind enemy lines to retrieve a paratrooper whose brothers have been killed in action.",
-          style: TextStyle(color: Colors.white, fontSize: TEXT_REGULAR_2X),
+          storyLine,
+          style:
+              const TextStyle(color: Colors.white, fontSize: TEXT_REGULAR_2X),
         ),
       ],
     );
@@ -246,31 +286,34 @@ class MovieTimeAndGenreView extends StatelessWidget {
   const MovieTimeAndGenreView({
     super.key,
     required this.genreList,
+    required this.movieDuration,
   });
 
   final List<String> genreList;
+  final int? movieDuration;
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.max,
+    return Wrap(
+      alignment: WrapAlignment.start,
+      crossAxisAlignment: WrapCrossAlignment.center,
       children: [
-        Icon(
+        const Icon(
           Icons.access_time,
           color: Colors.amber,
         ),
-        SizedBox(
+        const SizedBox(
           width: MARGIN_SMALL,
         ),
         Text(
-          "2 h 30 min",
-          style: TextStyle(color: Colors.white),
+          "${movieDuration ?? 0} min",
+          style: const TextStyle(color: Colors.white),
         ),
-        SizedBox(
+        const SizedBox(
           width: MARGIN_MEDIUM,
         ),
         ...genreList.map((genre) => GenreChipView(genreText: genre)).toList(),
-        Icon(
+        const Icon(
           Icons.favorite_border,
           color: Colors.white,
         )
@@ -290,18 +333,19 @@ class GenreChipView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
         Chip(
           backgroundColor: MOVIE_DETAIL_SCREEN_CHIP_BACKGROUND,
           label: Text(
             genreText,
-            style: TextStyle(
+            style: const TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
             ),
           ),
         ),
-        SizedBox(
+        const SizedBox(
           width: MARGIN_SMALL,
         )
       ],
@@ -311,8 +355,9 @@ class GenreChipView extends StatelessWidget {
 
 class MovieDetailSliverAppBarView extends StatelessWidget {
   final Function onTapBackButtonView;
+  final MovieVO? movieDetail;
 
-  MovieDetailSliverAppBarView(this.onTapBackButtonView);
+  MovieDetailSliverAppBarView(this.onTapBackButtonView, this.movieDetail);
 
   @override
   Widget build(BuildContext context) {
@@ -324,22 +369,24 @@ class MovieDetailSliverAppBarView extends StatelessWidget {
         background: Stack(
           children: [
             Positioned.fill(
-              child: MovieDetailAppBarImageView(),
+              child: MovieDetailAppBarImageView(
+                image: movieDetail?.posterPath ?? "",
+              ),
             ),
-            Positioned.fill(
+            const Positioned.fill(
               child: GradientView(),
             ),
             Align(
               alignment: Alignment.topLeft,
               child: Padding(
-                padding:
-                    EdgeInsets.only(top: MARGIN_XXLARGE, left: MARGIN_MEDIUM_2),
+                padding: const EdgeInsets.only(
+                    top: MARGIN_XXLARGE, left: MARGIN_MEDIUM_2),
                 child: BackButtonView(() {
-                  this.onTapBackButtonView();
+                  onTapBackButtonView();
                 }),
               ),
             ),
-            Align(
+            const Align(
               alignment: Alignment.topRight,
               child: Padding(
                 padding: EdgeInsets.only(
@@ -355,7 +402,9 @@ class MovieDetailSliverAppBarView extends StatelessWidget {
                     left: MARGIN_MEDIUM_2,
                     right: MARGIN_MEDIUM_2,
                     bottom: MARGIN_LARGE),
-                child: MovieDetailAppBarInfoView(),
+                child: MovieDetailAppBarInfoView(
+                  movieDetail: movieDetail,
+                ),
               ),
             )
           ],
@@ -366,8 +415,11 @@ class MovieDetailSliverAppBarView extends StatelessWidget {
 }
 
 class MovieDetailAppBarInfoView extends StatelessWidget {
+  final MovieVO? movieDetail;
+
   const MovieDetailAppBarInfoView({
     super.key,
+    required this.movieDetail,
   });
 
   @override
@@ -378,8 +430,10 @@ class MovieDetailAppBarInfoView extends StatelessWidget {
       children: [
         Row(
           children: [
-            MovieDetailYearView(),
-            Spacer(),
+            MovieDetailYearView(
+              year: movieDetail?.releaseDate?.substring(0, 4) ?? "",
+            ),
+            const Spacer(),
             Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
@@ -388,36 +442,28 @@ class MovieDetailAppBarInfoView extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     RatingView(
-                      rating: 0,
+                      rating: movieDetail?.voteAverage ?? 0,
                     ),
-                    SizedBox(
-                      height: MARGIN_SMALL,
-                    ),
-                    TitleText("38876 Votes"),
-                    SizedBox(
-                      height: MARGIN_CARD_MEDIUM_2,
-                    )
+                    const SizedBox(height: MARGIN_SMALL),
+                    TitleText("${movieDetail?.voteCount ?? 0} Votes"),
+                    const SizedBox(height: MARGIN_CARD_MEDIUM_2)
                   ],
                 ),
-                SizedBox(
-                  width: MARGIN_MEDIUM,
-                ),
+                const SizedBox(width: MARGIN_MEDIUM),
                 Text(
-                  "9,76",
-                  style: TextStyle(
+                  "${movieDetail?.voteAverage ?? 0}",
+                  style: const TextStyle(
                       color: Colors.white,
                       fontSize: MOVIE_DETAIL_RATING_TEXT_SIZE),
                 ),
-                SizedBox(
-                  height: MARGIN_MEDIUM_2,
-                )
+                const SizedBox(height: MARGIN_MEDIUM_2)
               ],
             )
           ],
         ),
         Text(
-          "Saving Private Ryan",
-          style: TextStyle(
+          movieDetail?.title ?? "",
+          style: const TextStyle(
               color: Colors.white,
               fontSize: TEXT_HEADING_1X,
               fontWeight: FontWeight.bold),
@@ -428,22 +474,25 @@ class MovieDetailAppBarInfoView extends StatelessWidget {
 }
 
 class MovieDetailYearView extends StatelessWidget {
+  final String year;
+
   const MovieDetailYearView({
     super.key,
+    required this.year,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: MARGIN_MEDIUM_2),
+      padding: const EdgeInsets.symmetric(horizontal: MARGIN_MEDIUM_2),
       height: MARGIN_XLARGE,
       decoration: BoxDecoration(
           color: Colors.amber,
           borderRadius: BorderRadius.circular(MARGIN_MEDIUM_2)),
       child: Center(
         child: Text(
-          "2016",
-          style: TextStyle(color: Colors.white),
+          year,
+          style: const TextStyle(color: Colors.white),
         ),
       ),
     );
@@ -457,7 +506,7 @@ class SearchButtonView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Icon(
+    return const Icon(
       Icons.search,
       color: Colors.white,
     );
@@ -479,8 +528,8 @@ class BackButtonView extends StatelessWidget {
         width: 32,
         height: 32,
         decoration:
-            BoxDecoration(shape: BoxShape.circle, color: Colors.black54),
-        child: Icon(
+            const BoxDecoration(shape: BoxShape.circle, color: Colors.black54),
+        child: const Icon(
           Icons.chevron_left,
           color: Colors.white,
         ),
@@ -490,14 +539,17 @@ class BackButtonView extends StatelessWidget {
 }
 
 class MovieDetailAppBarImageView extends StatelessWidget {
+  final String image;
+
   const MovieDetailAppBarImageView({
     super.key,
+    required this.image,
   });
 
   @override
   Widget build(BuildContext context) {
     return Image.network(
-      "https://m.media-amazon.com/images/M/MV5BZjhkMDM4MWItZTVjOC00ZDRhLThmYTAtM2I5NzBmNmNlMzI1XkEyXkFqcGdeQXVyNDYyMDk5MTU@._V1_FMjpg_UX1000_.jpg",
+      "$IMAGE_BASE_URL$image",
       fit: BoxFit.cover,
     );
   }

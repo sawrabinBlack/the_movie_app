@@ -1,35 +1,41 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'genre_vo.dart';
+part of 'production_company_vo.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator
 // **************************************************************************
 
-class GenreVOAdapter extends TypeAdapter<GenreVO> {
+class ProductionCompanyVOAdapter extends TypeAdapter<ProductionCompanyVO> {
   @override
-  final int typeId = 3;
+  final int typeId = 6;
 
   @override
-  GenreVO read(BinaryReader reader) {
+  ProductionCompanyVO read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return GenreVO(
+    return ProductionCompanyVO(
       fields[0] as int?,
       fields[1] as String?,
+      fields[2] as String?,
+      fields[3] as String?,
     );
   }
 
   @override
-  void write(BinaryWriter writer, GenreVO obj) {
+  void write(BinaryWriter writer, ProductionCompanyVO obj) {
     writer
-      ..writeByte(2)
+      ..writeByte(4)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
-      ..write(obj.name);
+      ..write(obj.logoPath)
+      ..writeByte(2)
+      ..write(obj.name)
+      ..writeByte(3)
+      ..write(obj.originCountry);
   }
 
   @override
@@ -38,7 +44,7 @@ class GenreVOAdapter extends TypeAdapter<GenreVO> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is GenreVOAdapter &&
+      other is ProductionCompanyVOAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }
@@ -47,12 +53,19 @@ class GenreVOAdapter extends TypeAdapter<GenreVO> {
 // JsonSerializableGenerator
 // **************************************************************************
 
-GenreVO _$GenreVOFromJson(Map<String, dynamic> json) => GenreVO(
+ProductionCompanyVO _$ProductionCompanyVOFromJson(Map<String, dynamic> json) =>
+    ProductionCompanyVO(
       json['id'] as int?,
+      json['logo_path'] as String?,
       json['name'] as String?,
+      json['origin_country'] as String?,
     );
 
-Map<String, dynamic> _$GenreVOToJson(GenreVO instance) => <String, dynamic>{
+Map<String, dynamic> _$ProductionCompanyVOToJson(
+        ProductionCompanyVO instance) =>
+    <String, dynamic>{
       'id': instance.id,
+      'logo_path': instance.logoPath,
       'name': instance.name,
+      'origin_country': instance.originCountry,
     };

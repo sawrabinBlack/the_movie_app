@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:movie_app/data/vos/actor_vo.dart';
 import 'package:movie_app/network/api_constants.dart';
@@ -12,7 +13,6 @@ class ActorView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.blue,
       width: movieListWidth,
       margin: EdgeInsets.only(left: MARGIN_MEDIUM),
       child: Stack(
@@ -51,10 +51,9 @@ class ActorImageView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Image.network(
-      "$IMAGE_BASE_URL$actorImageLink",
-      fit: BoxFit.cover,
-    );
+    return Image.network("${IMAGE_BASE_URL}$actorImageLink",errorBuilder:(context,exception,stacktrack){
+      return Image.asset("assets/images/placeholder.jpeg",fit: BoxFit.fill);
+    } ,fit: BoxFit.fill,);
   }
 }
 
@@ -92,22 +91,22 @@ class ActorNameAndLikedView extends StatelessWidget {
             name,
             style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
           ),
-          Row(
-            children: [
-              Icon(
-                Icons.thumb_up,
-                color: Colors.amber,
-                size: MARGIN_MEDIUM_2,
-              ),
-              SizedBox(
-                width: MARGIN_MEDIUM,
-              ),
-              Text(
-                "You Like 3 Movies",
-                style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
-              ),
-            ],
-          )
+          // Row(
+          //   children: [
+          //     Icon(
+          //       Icons.thumb_up,
+          //       color: Colors.amber,
+          //       size: MARGIN_MEDIUM_2,
+          //     ),
+          //     SizedBox(
+          //       width: MARGIN_MEDIUM,
+          //     ),
+          //     Text(
+          //       "You Like 3 Movies",
+          //       style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
+          //     ),
+          //   ],
+          // )
         ],
       ),
     );

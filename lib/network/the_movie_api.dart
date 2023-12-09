@@ -1,6 +1,8 @@
 import 'package:dio/dio.dart';
+import 'package:movie_app/data/vos/movie_vo.dart';
 import 'package:movie_app/network/api_constants.dart';
 import 'package:movie_app/network/responses/get_actor_response.dart';
+import 'package:movie_app/network/responses/get_credits_response.dart';
 import 'package:movie_app/network/responses/get_genre_response.dart';
 import 'package:movie_app/network/responses/get_now_playing_response.dart';
 import 'package:retrofit/http.dart';
@@ -42,6 +44,18 @@ abstract class TheMovieApi {
 
   @GET(ENDPOINT_BEST_ACTORS)
   Future<GetActorResponse> getBestActors(
+    @Query(PARAM_API_KEY) String apiKey,
+  );
+
+  @GET("$ENDPOINT_GET_MOVIE_DETAILS/{movie_id}")
+  Future<MovieVO> getMovieDetails(
+    @Path("movie_id") String movieId,
+    @Query(PARAM_API_KEY) String apiKey,
+  );
+
+  @GET("$ENDPOINT_GET_MOVIE_DETAILS/{movie_id}/credits")
+  Future<GetCreditsResponse> getMovieCredits(
+      @Path("movie_id") String movieId,
       @Query(PARAM_API_KEY) String apiKey,
       );
 }

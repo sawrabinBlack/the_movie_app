@@ -1,0 +1,13 @@
+///HIVE TYPES
+
+const int HIVE_TYPE_ID_ACTOR_VO = 1;
+const int HIVE_TYPE_ID_DATE_VO = 2;
+const int HIVE_TYPE_ID_GENRE_VO = 3;
+const int HIVE_TYPE_ID_MOVIE_VO = 4;
+const int HIVE_TYPE_ID_PROUCTION_COUNTRY_VO = 5;
+const int HIVE_TYPE_ID_PRODUCTON_PRODUCTION_VO = 6;
+
+///Hive Box Names
+const String BOX_NAME_ACTOR_VO = "String BOX_NAME_ACTOR_VO";
+const String BOX_NAME_GENRE_VO = "BOX_NAME_GENRE_VO";
+const String BOX_NAME_MOVIE_VO = "BOX_NAME_MOVIE_VO";

@@ -25,56 +25,71 @@ class RetrofitDataAgentImpl extends MovieDataAgent {
   }
 
   @override
-  Future<List<MovieVO>?> getNowPlayingMovies(int page) {
+  Future<List<MovieVO>> getNowPlayingMovies(int page) {
     return mApi
         .getNowPlayingMovie(API_KEY, LANGUAGE_EN_US, page.toString())
         .asStream()
-        .map((response) => response.results)
+        .map((response) => response.results??[])
         .first;
   }
 
   @override
-  Future<List<MovieVO>?> getPopularMovies() {
+  Future<List<MovieVO>> getPopularMovies() {
     return mApi
         .getPopularMovies(API_KEY, LANGUAGE_EN_US)
         .asStream()
-        .map((response) => response.results)
+        .map((response) => response.results??[])
         .first;
   }
 
   @override
-  Future<List<GenreVO>?> getGenres() {
+  Future<List<GenreVO>> getGenres() {
     return mApi
         .getGenre(API_KEY)
         .asStream()
-        .map((response) => response.genres)
+        .map((response) => response.genres??[])
         .first;
   }
 
   @override
-  Future<List<MovieVO>?> getMovieByGenre(int genreId) {
+  Future<List<MovieVO>> getMovieByGenre(int genreId) {
     return mApi
         .getMoviesByGenre(API_KEY, genreId.toString())
         .asStream()
-        .map((response) => response.results)
+        .map((response) => response.results??[])
         .first;
   }
 
   @override
-  Future<List<MovieVO>?> getTopRatedMovies() {
+  Future<List<MovieVO>> getTopRatedMovies() {
     return mApi
         .getTopRatedMovies(API_KEY)
         .asStream()
-        .map((response) => response.results)
+        .map((response) => response.results??[])
         .first;
   }
 
   @override
-  Future<List<ActorVO>?> getBestActors() {
+  Future<List<ActorVO>> getBestActors() {
     return mApi
         .getBestActors(API_KEY)
         .asStream()
-        .map((response) => response.results)
+        .map((response) => response.results??[])
         .first;
+  }
+
+  @override
+  Future<List<List<ActorVO>>> getCreditsByMovies(int movieId) {
+    return mApi
+        .getMovieCredits(movieId.toString(), API_KEY)
+        .asStream()
+        .map((response) {
+      return [response.cast??[], response.crew??[]];
+    }).first;
+  }
+
+  @override
+  Future<MovieVO> getMovieDetails(int movieId) {
+    return mApi.getMovieDetails(movieId.toString(), API_KEY);
   }
 }

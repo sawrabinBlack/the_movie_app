@@ -49,15 +49,32 @@ class _HomePageState extends State<HomePage> {
     movieModel.getNowPlayingMovies().then((movieList) => setState(() {
           nowPlayingMovies = movieList;
         }));
-    movieModel.getPopularMovies().then((movieList) => setState(() {
-          popularMovies = movieList?.take(5).toList();
-        }));
+    movieModel
+        .getNowPlayingMoviesFromDatabase()
+        .then((movieList) => setState(() {
+              nowPlayingMovies = movieList;
+            }));
 
+    movieModel.getPopularMovies().then((movieList) => setState(() {
+          popularMovies = movieList.take(5).toList();
+        }));
+    movieModel.getPopularMoviesFromDatabase().then((movieList) => setState(() {
+          popularMovies = movieList.take(5).toList();
+        }));
     movieModel.getGenres().then((genreList) {
       setState(() {
         this.genreList = genreList;
       });
-      _getMoviesByGenreId(genreList?.first.id ?? 0);
+
+      _getMoviesByGenreId(genreList.first.id ?? 0);
+    });
+
+    movieModel.getGenresFromDatabase().then((genreList) {
+      setState(() {
+        this.genreList = genreList;
+      });
+
+      _getMoviesByGenreId(genreList.first.id ?? 0);
     });
 
     movieModel.getTopRatedMovies().then((movieList) => setState(() {
@@ -93,14 +110,15 @@ class _HomePageState extends State<HomePage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               BannerSectionView(
-                movieList: popularMovies,
+                movieList: popularMovies??[],
               ),
               const SizedBox(
                 height: MARGIN_MEDIUM_2,
               ),
               BestPopularMovieAndSeriesSection(
                   movieList: nowPlayingMovies,
-                  onTapMovie: () => _navigateToMovieDetail(context, 2)),
+                  onTapMovie: (movieId) =>
+                      _navigateToMovieDetail(context, movieId)),
               const CheckMovieShowTimeSectionView(),
               const SizedBox(height: MARGIN_MEDIUM_2),
               GenreSectionView(
@@ -108,13 +126,13 @@ class _HomePageState extends State<HomePage> {
                 onTapGenre: _getMoviesByGenreId,
                 onTapMovie: (movieId) {
                   if (movieId != null) {
-                    _navigateToMovieDetail(context,movieId);
+                    _navigateToMovieDetail(context, movieId);
                   }
                 },
                 movieList: movieListByGenre,
               ),
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: TitleTextWithSeeMore(
                   "Showcases",
                   "More Showcases",
@@ -199,18 +217,16 @@ class GenreSectionView extends StatelessWidget {
                   tabs: genreList
                       .map(
                         (genre) => Tab(
-                          child: Text(genre?.name ?? ""),
+                          child: Text(genre.name ?? ""),
                         ),
                       )
                       .toList())),
         ),
-        SizedBox(
-          height: MARGIN_MEDIUM,
-        ),
+        const SizedBox(height: MARGIN_MEDIUM),
         Container(
             color: PRIMARY_COLOR,
-            padding:
-                EdgeInsets.only(top: MARGIN_MEDIUM_2, bottom: MARGIN_LARGE),
+            padding: const EdgeInsets.only(
+                top: MARGIN_MEDIUM_2, bottom: MARGIN_LARGE),
             child: MovieListView(
               onTapMovie: (movieId) {
                 onTapMovie(movieId);
@@ -327,11 +343,11 @@ class MovieListView extends StatelessWidget {
 }
 
 class BannerSectionView extends StatefulWidget {
-  final List<MovieVO>? movieList;
+  final List<MovieVO> movieList;
 
   const BannerSectionView({
     super.key,
-    this.movieList,
+  required this.movieList,
   });
 
   @override
@@ -365,7 +381,7 @@ class _BannerSectionViewState extends State<BannerSectionView> {
           height: MARGIN_MEDIUM,
         ),
         DotsIndicator(
-          dotsCount: widget.movieList?.length ?? 1,
+          dotsCount: widget.movieList.length<=0 ? 1 : widget.movieList.length,
           position: _position,
           decorator: const DotsDecorator(
             color: HOME_SCREEN_BANNER_DOTS_INACTIVE_COLOR,
